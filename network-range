@@ -1,0 +1,40 @@
+#!/bin/bash
+####################################################################
+# Homepage: https://github.com/blindly/network-range
+# Description: Add range of ips as aliases to your network interface
+# Usage: Create a file /etc/ips. Add your desired IPs, one per line
+# Example: 172.16.1.100
+# 172.16.1.101
+# 172.16.1.102
+# Download the script to /usr/local/sbin and make it executable.
+# Execute the file and specify if you want the interfaces to be up 
+# or down
+# For assistance, pull requests, check out our homepage on github.
+####################################################################
+
+status=${1}
+proceed='no'
+
+if [ ! -e /etc/ips ] ; then
+        echo "Error: /etc/ips missing"
+        echo "Put your ips in /etc/ips - one per line"
+else
+        if [ -z $status ] ; then
+                proceed='no'
+        else
+                if [ $status == 'up' ]  || [ $status == 'down' ] ; then
+                        proceed='yes'
+                fi
+        fi
+
+        if [ $proceed == 'yes' ] ; then
+                count=1
+                for ip in $(cat /etc/ips); do
+                        echo "Interface ${ip} ${status}"
+                        ifconfig eth0:$((i++)) ${ip} netmask 255.255.255.192 ${status}
+                done
+        else
+                echo "Usage: $0 (up or down)"
+                echo "IPs file is /etc/ips"
+        fi
+fi
